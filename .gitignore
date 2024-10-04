@@ -1,0 +1,59 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# WordPress
+/wordpress/*
+
+### https://raw.github.com/github/gitignore/3bb7b4b767f3f8df07e362dfa03c8bd425f16d32/WordPress.gitignore
+
+# ignore everything in the root except the "wp-content" directory.
+!/wordpress/wp-content
+
+# ignore everything in the "wp-content" directory, except:
+# "mu-plugins", "uploads", "plugins", "themes" directory
+# /wordpress/wp-content/*
+/wordpress/wp-content/languages
+!/wordpress/wp-content/mu-plugins/
+/wordpress/wp-content/uploads/
+/wordpress/wp-content/ai1wm-backups/
+!/wordpress/wp-content/plugins/
+/wordpress/wp-content/themes/*
+!/wordpress/wp-content/themes/trp-org/
+
+# ignore specific themes
+/wordpress/wp-content/themes/twenty*/
+
+# ignore these plugins
+/wordpress/wp-content/index.php
+/wordpress/wp-content/plugins/index.php
+/wordpress/wp-content/plugins/hello.php
+/wordpress/wp-content/plugins/akismet/
+
+# ignore log files and databases
+*.log
+*.sql
+*.sqlite

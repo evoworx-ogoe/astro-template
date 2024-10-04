@@ -1,0 +1,39 @@
+---
+import '@/styles/index.scss';
+
+interface Props {
+  title: string;
+  description: string;
+  ogImage: string;
+  url: string;
+}
+
+const { title, description, ogImage, url } = Astro.props;
+---
+
+<head>
+  <meta charset="UTF-8" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="ja" />
+  <meta property="og:url" content={url} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href={url} />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+
+  <!-- <link rel="icon" href="/assets/img/public/primary/favicon.ico" sizes="any" />
+  <link rel="icon" href="/assets/img/public/primary/icon.svg" type="image/svg+xml" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/img/public/primary/icon-192.png" />
+  <link rel="apple-touch-icon" href="/assets/img/public/primary/apple-touch-icon.png" /> -->
+</head>
+
+<script>
+  import '@/scripts/index.ts';
+</script>

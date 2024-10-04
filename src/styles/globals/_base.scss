@@ -1,0 +1,61 @@
+@use '/src/styles/utils/variable' as var;
+@use '/src/styles/utils/mixin' as mixin;
+@use '/src/styles/utils/function' as fn;
+
+/* ------------------------------
+ベース
+------------------------------ */
+
+:root {
+  --width-outer: #{var.$pc-width}px;
+  --width-container: 1040px;
+  --margin-inline-container: 25px;
+  --font-family-ja-sans: 'ZenKakuGothic';
+  --font-family-en-sans: 'Roboto';
+  --color-black: #333;
+
+  @include mixin.mq('tab') {
+    $margin-inline-container: fn.vwmin(120, 'pc');
+
+    --margin-inline-container: #{$margin-inline-container};
+  }
+
+  @include mixin.mq('pc') {
+    --margin-inline-container: auto;
+  }
+}
+
+@layer base {
+  html {
+    font-family: var(--font-family-ja-sans), sans-serif;
+    color: var(--color-black);
+  }
+
+  :target {
+    scroll-margin-top: calc(var(--header-height) + 10px);
+  }
+
+  :where(.c-outer) {
+    max-width: var(--width-outer);
+    margin-inline: auto;
+  }
+
+  :where(.c-container) {
+    max-width: var(--width-container);
+    margin-inline: var(--margin-inline-container);
+  }
+
+  .c-md_content {
+    display: none;
+
+    @include mixin.mq('tab') {
+      display: initial;
+    }
+  }
+
+  .c-sm_content {
+    @include mixin.mq('tab') {
+      display: none;
+    }
+  }
+}

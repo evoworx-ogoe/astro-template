@@ -1,0 +1,149 @@
+---
+interface Props {
+  name: string;
+  label: string;
+  class?: string;
+}
+
+const { name, label, class: className } = Astro.props;
+---
+
+<button type="button" class="modal-button" data-dialog-name={name} data-dialog-module="button" data-dialog-button="toggle">
+  <slot name="toggle" />
+</button>
+<dialog
+  class:list={[className, 'dialog-container', 'c-dialog-container']}
+  data-dialog-name={name}
+  data-dialog-module="dialog"
+  aria-modal="false"
+  aria-label={label}
+  aria-hidden="true"
+>
+  <div class="dialog-container__inner" data-dialog-module="inner">
+    <slot name="content" />
+  </div>
+</dialog>
+
+<script>
+  class Dialog {
+    dialog: HTMLDialogElement;
+    dialogName: string;
+    buttons: NodeListOf<HTMLButtonElement>;
+    content: HTMLElement;
+    isOpen: boolean;
+
+    constructor(dialog: HTMLDialogElement) {
+      this.dialog = dialog;
+      this.dialogName = dialog.dataset.dialogName as string;
+      this.buttons = document.querySelectorAll<HTMLButtonElement>(
+        `[data-dialog-name="${this.dialogName}"][data-dialog-module="button"]`
+      ) as NodeListOf<HTMLButtonElement>;
+      this.content = this.dialog.querySelector<HTMLElement>(':last-child') as HTMLElement;
+      this.isOpen = false;
+
+      this.#init();
+    }
+
+    #init() {
+      this.#setEventListener();
+    }
+
+    get open() {
+      return this.isOpen;
+    }
+
+    set open(value) {
+      this.isOpen = value;
+      this.#toggleModal();
+      this.#setContainerHeight();
+    }
+
+    #setEventListener() {
+      // ボタンをクリックしたらモーダルを操作する
+      this.buttons?.forEach((button) => {
+        const buttonType = button.dataset.dialogButton as string;
+        button.addEventListener('click', () => {
+          switch (buttonType) {
+            case 'open':
+              this.open = true;
+              break;
+            case 'close':
+              this.open = false;
+              break;
+            case 'toggle':
+              this.open = !this.open;
+              break;
+          }
+        });
+      });
+
+      // モーダル内のアンカーリンクをクリックしたらモーダルを閉じる
+      const anchors = this.content.querySelectorAll('a[href*="#"]');
+      anchors?.forEach((anchor) => {
+        anchor.addEventListener('click', () => {
+          this.open = false;
+        });
+      });
+
+      // dialog::backdropをクリックした時に閉じる
+      this.dialog.addEventListener('click', (event: MouseEvent) => {
+        if (event.target === this.dialog) {
+          this.open = false;
+        } else {
+          event.stopPropagation();
+        }
+      });
+    }
+
+    // コンテンツがリサイズしたらコンテナの高さを再計算する
+    #setContainerHeight() {
+      const contentsHeight = this.content.offsetHeight;
+      this.dialog.style.setProperty(`--inner-height`, `${contentsHeight}px`);
+    }
+
+    #toggleModal() {
+      if (this.isOpen) {
+        this.dialog.showModal();
+        document.body.style.overflow = 'hidden';
+      } else {
+        this.dialog.close();
+        document.body.style.overflow = '';
+      }
+
+      this.dialog.setAttribute('aria-hidden', `${!this.isOpen}`);
+      this.dialog.setAttribute('aria-modal', `${this.isOpen}`);
+      this.buttons?.forEach((button) => {
+        button.setAttribute('aria-expanded', `${this.isOpen}`);
+        const buttonType = button.dataset.modalButton as string;
+        if (buttonType !== 'toggle') return;
+        const label = this.isOpen ? '閉じる' : '開く';
+        button.setAttribute('aria-label', label);
+      });
+    }
+  }
+
+  const dialogs = document.querySelectorAll<HTMLDialogElement>('[data-dialog-module="dialog"]');
+  dialogs?.forEach((dialog) => {
+    new Dialog(dialog);
+  });
+</script>
+
+<style lang="scss">
+  .c-dialog-container {
+    max-width: 100%;
+    max-height: 100%;
+    border: none;
+    transition-timing-function: cubic-bezier(0.3, 1.01, 0.6, 1);
+    transition-duration: 0.3s;
+
+    &::backdrop {
+      cursor: pointer;
+      background: rgb(87 87 87 / 60%);
+      backdrop-filter: blur(6px);
+    }
+
+    .dialog-container__inner {
+      height: calc(max(var(--window-height), var(--inner-height)));
+    }
+  }
+</style>

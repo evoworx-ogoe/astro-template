@@ -1,0 +1,272 @@
+---
+interface Props {
+  name: string;
+  label: string;
+  class?: string;
+}
+
+const { name, class: className, label } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[className, 'modal-toggle', 'c-modal-toggle']}
+  data-modal={name}
+  data-modal-module="button"
+  data-modal-button="toggle"
+  data-hover-parent
+  aria-controls={`modal_${name}`}
+  aria-label="開く"
+  aria-expanded="false"
+>
+  <slot name="toggle" />
+</button>
+
+<div
+  id={`modal_${name}`}
+  class="modal-container c-modal-container"
+  data-modal={name}
+  data-modal-module="container"
+  role="dialog"
+  aria-modal="false"
+  aria-label={label}
+  aria-hidden="true"
+>
+  <div class="c-modal-overlay" data-modal={name} data-modal-module="overlay"></div>
+  <slot name="content" />
+</div>
+
+<script>
+  class Modal {
+    container: HTMLElement;
+    name: string;
+    buttons: NodeListOf<HTMLButtonElement>;
+    innerAnchors: NodeListOf<HTMLAnchorElement>;
+    overlay: HTMLElement;
+    content: HTMLElement;
+    isOpen: boolean;
+    isDestroy: boolean;
+
+    constructor(container: HTMLElement) {
+      Modal.instances.push(this); // インスタンスを配列に格納
+      this.container = container;
+      this.name = container.dataset.modal as string;
+      this.buttons = document.querySelectorAll(`[data-modal="${this.name}"][data-modal-module="button"]`) as NodeListOf<HTMLButtonElement>;
+      this.innerAnchors = this.container.querySelectorAll('a[href*="#"]') as NodeListOf<HTMLAnchorElement>;
+      this.overlay = this.container.querySelector('[data-modal-module="overlay"]') as HTMLElement;
+      this.content = this.container.querySelector(':last-child') as HTMLElement;
+      this.isOpen = false;
+      this.isDestroy = false;
+
+      this.init();
+    }
+
+    init() {
+      this.#setEventListener();
+      this.#resizeObserver();
+    }
+
+    static instances = [] as Modal[];
+
+    get open() {
+      return this.isOpen;
+    }
+
+    get destroy() {
+      return this.isDestroy;
+    }
+
+    set open(value) {
+      this.isOpen = value;
+      if (this.destroy) return;
+      this.#toggleModal();
+    }
+
+    set destroy(value) {
+      this.isDestroy = value;
+    }
+
+    // コンテンツがリサイズしたらコンテナの高さを再計算する
+    #resizeObserver() {
+      const resizeObserver = new ResizeObserver(() => {
+        this.#setContainerHeight();
+      });
+      resizeObserver.observe(this.content);
+    }
+
+    // コンテナの高さを設定する
+    #setContainerHeight() {
+      this.container.style.setProperty(`--content-height`, `${this.content.offsetHeight}px`);
+    }
+
+    // ボタンをクリックしたらモーダルを操作する
+    #onClickButton(event: Event) {
+      if (this.destroy) return;
+      const button = event.target as HTMLButtonElement;
+      const buttonType = button.dataset.modalButton as string;
+
+      switch (buttonType) {
+        case 'open':
+          this.open = true;
+          break;
+        case 'close':
+          this.open = false;
+          break;
+        case 'toggle':
+          this.open = !this.open;
+          break;
+      }
+    }
+
+    // モーダル内のアンカーをクリックしたらモーダルを閉じる
+    #onClickAnchor() {
+      if (this.destroy) return;
+      this.open = false;
+    }
+
+    // オーバーレイをクリックしたらモーダルを閉じる
+    #onClickOverlay() {
+      if (this.destroy) return;
+      this.open = false;
+    }
+
+    // モーダルを開いている時にエスケープキーを押したらモーダルを閉じる
+    #onKeydown(event: KeyboardEvent) {
+      if (this.destroy) return;
+      if (this.isOpen && (event.key === 'Escape' || event.key === 'Esc')) {
+        this.open = false;
+      }
+    }
+
+    // コンテナ内にYouTubeの埋め込みiframeがあれば閉じる時に動画を停止する
+    #stopYoutubeVideo() {
+      const iframeElements = this.container.querySelectorAll('iframe');
+      iframeElements?.forEach((iframe) => {
+        const src = iframe.getAttribute('src');
+        if (src?.match(/youtube.com/)) {
+          const youtube = iframe.contentWindow;
+          youtube?.postMessage('{"event": "command", "func": "stopVideo", "args": ""}', '*');
+        }
+      });
+    }
+
+    // イベントリスナーを設定する
+    #setEventListener() {
+      this.buttons?.forEach((button) => {
+        button.addEventListener('click', this.#onClickButton.bind(this));
+      });
+      this.innerAnchors?.forEach((anchor) => {
+        anchor.addEventListener('click', this.#onClickAnchor.bind(this));
+      });
+      this.overlay.addEventListener('click', this.#onClickOverlay.bind(this));
+      document.addEventListener('keydown', this.#onKeydown.bind(this));
+    }
+
+    #toggleDestroyClass(action: 'add' | 'remove') {
+      this.container.classList[action]('is_destroy');
+      this.buttons?.forEach((button) => {
+        button.classList[action]('is_destroy');
+      });
+    }
+
+    // モーダルの開閉
+    #toggleModal(isOpen = this.isOpen) {
+      this.container.setAttribute('aria-modal', `${isOpen}`);
+      this.container.setAttribute('aria-hidden', `${!isOpen}`);
+      this.buttons?.forEach((button) => {
+        const buttonType = button.dataset.modalButton as string;
+        const label = isOpen ? 'メニューを閉じる' : 'メニューを開く';
+        if (buttonType !== 'toggle') return;
+
+        button.setAttribute('aria-expanded', `${isOpen}`);
+        button.setAttribute('aria-label', label);
+      });
+
+      // モーダルが開いていたら下層のスクロールを禁止する
+      // モーダルの開閉時にイベントを発火する
+      if (isOpen) {
+        document.body.classList.add('js-fixed');
+        this.container.dispatchEvent(new Event('modal:open'));
+      } else {
+        document.body.classList.remove('js-fixed');
+        this.#stopYoutubeVideo();
+        this.container.dispatchEvent(new Event('modal:close'));
+      }
+    }
+
+    // モダールを外部から再初期化する
+    doInit() {
+      this.destroy = false;
+      this.#toggleDestroyClass('remove');
+    }
+
+    // モーダルを外部から破棄する
+    doDestroy() {
+      this.destroy = true;
+      this.#toggleDestroyClass('add');
+      document.body.classList.remove('js-fixed');
+    }
+
+    // モーダルの開閉状態を外部から操作する
+    doToggle(value: 'open' | 'close') {
+      // 'open'なら開く, 'close'なら閉じる
+      value === 'open' ? (this.open = true) : (this.open = false);
+    }
+  }
+
+  // [data-modal-module="container"]
+  const modalContainers = document.querySelectorAll('[data-modal-module="container"]') as NodeListOf<HTMLElement>;
+  modalContainers?.forEach((container) => {
+    new Modal(container);
+  });
+</script>
+
+<style lang="scss">
+  body.js-fixed {
+    padding-right: var(--scrollbar-width);
+    overflow: hidden;
+  }
+
+  .c-modal-toggle {
+    display: inline-block;
+  }
+
+  .c-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+    transition-timing-function: cubic-bezier(0.3, 1.01, 0.6, 1);
+    transition-duration: 0.4s;
+    transition-property: opacity, visibility;
+    will-change: opacity, visibility;
+
+    // 表示
+    &[aria-hidden='true'] {
+      pointer-events: none;
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    // 非表示
+    &[aria-hidden='false'] {
+      pointer-events: auto;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    :where(.c-modal-overlay),
+    :where(& > :last-child) {
+      position: absolute;
+      width: 100%;
+      min-height: calc(max(var(--window-height), var(--content-height)));
+    }
+
+    .c-modal-overlay {
+      cursor: pointer;
+    }
+  }
+</style>

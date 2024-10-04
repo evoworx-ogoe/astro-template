@@ -1,0 +1,75 @@
+@use 'sass:math';
+@use 'sass:string';
+@use 'sass:meta';
+@use '/src/styles/utils/variable' as var;
+
+/* ------------------------------
+数値変換
+------------------------------ */
+// clamp() vw
+@function vwclamp($pxMinValue, $pxMaxValue, $reference, $base: null) {
+  @if $reference == 'sp' {
+    @if not $base {
+      $base: var.$sp-width;
+    }
+  } @else if $reference == 'pc' {
+    @if not $base {
+      $base: var.$pc-width;
+    }
+  }
+
+  $vwValue: calc(math.round(calc($pxMaxValue / $base) * 10000) / 100 * 1vw);
+
+  @return string.unquote('clamp(#{$pxMinValue}px, #{$vwValue}, #{$pxMaxValue}px)');
+}
+
+// min() vw
+@function vwmin($pxValue, $reference, $base: null) {
+  @if $reference == 'sp' {
+    @if not $base {
+      $base: var.$sp-width;
+    }
+  } @else if $reference == 'pc' {
+    @if not $base {
+      $base: var.$pc-width;
+    }
+  }
+
+  $vwValue: calc(math.round(calc($pxValue / $base) * 10000) / 100 * 1vw);
+
+  @return string.unquote('min(#{$vwValue}, #{$pxValue}px)');
+}
+
+// px => vw
+@function vw($px, $reference, $base: null) {
+  @if $reference == 'sp' {
+    @if not $base {
+      $base: var.$sp-width;
+    }
+
+    @return calc(math.round(calc($px / $base) * 10000) / 100 * 1vw);
+  } @else if $reference == 'pc' {
+    @if not $base {
+      $base: var.$pc-width;
+    }
+
+    @return calc(math.round(calc($px / $base) * 10000) / 100 * 1vw);
+  }
+}
+
+// 単位削除
+@function strip-unit($number) {
+  @if meta.type-of($number) == 'number' and not math.is-unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}
+
+// px => rem
+@function rem($px, $base: 16px) {
+  $value: $px;
+  $value: (strip-unit($px) / strip-unit($base)) * 1rem;
+
+  @return $value;
+}

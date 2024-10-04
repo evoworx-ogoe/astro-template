@@ -1,0 +1,36 @@
+@use 'sass:map';
+@use '/src/styles/utils/variable' as var;
+
+/* ------------------------------
+ブレイクポイント
+------------------------------ */
+@mixin mq($breakpoint) {
+  @if $breakpoint == 'sp' {
+    @media #{map.get(var.$breakpoints, $breakpoint)} {
+      @content;
+    }
+  } @else if $breakpoint == 'tab' {
+    @media #{map.get(var.$breakpoints, $breakpoint)} {
+      @content;
+    }
+  } @else if $breakpoint == 'pc' {
+    @media #{map.get(var.$breakpoints, $breakpoint)} {
+      @content;
+    }
+  } @else {
+    @media screen and (min-width: #{$breakpoint}px) {
+      @content;
+    }
+  }
+}
+
+/* ------------------------------
+ホバー
+------------------------------ */
+@mixin hover() {
+  @media (any-hover: hover) {
+    &:hover {
+      @content;
+    }
+  }
+}

@@ -1,0 +1,113 @@
+@use '/src/styles/utils/variable' as var;
+@use '/src/styles/utils/mixin' as mixin;
+@use '/src/styles/utils/function' as fn;
+
+/* ------------------------------
+ホバー
+------------------------------ */
+
+@layer hover {
+  [data-hover-parent],
+  [data-hover-child] {
+    transition-timing-function: ease;
+    transition-duration: 0.3s;
+  }
+
+  [data-hover-parent~='scale'],
+  [data-hover-child~='scale'] {
+    overflow: hidden;
+  }
+
+  [data-hover-parent] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        [data-hover-child~='color'] {
+          color: var(--hover-color);
+        }
+
+        [data-hover-child~='border-color'] {
+          border-color: var(--hover-border-color);
+        }
+
+        [data-hover-child~='background-color'] {
+          background-color: var(--hover-background-color);
+        }
+
+        [data-hover-child~='text-decoration-color'] {
+          text-decoration-color: var(--hover-text-decoration-color);
+        }
+
+        [data-hover-child~='translate'] {
+          translate: var(--hover-translate);
+        }
+
+        [data-hover-child~='scale'] {
+          > * {
+            scale: var(--hover-scale, 1.05);
+          }
+        }
+      }
+    }
+  }
+
+  [data-hover-parent~='dynamic-color'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        --hover-color: var(--dynamic-color);
+        --hover-background-color: var(--dynamic-color);
+        --hover-border-color: var(--dynamic-color);
+        --hover-pseudo-color: var(--dynamic-color);
+      }
+    }
+  }
+
+  [data-hover-parent~='color'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--hover-color);
+      }
+    }
+  }
+
+  [data-hover-parent~='border-color'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        border-color: var(--hover-border-color);
+      }
+    }
+  }
+
+  [data-hover-parent~='text-decoration-color'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        text-decoration-color: var(--hover-text-decoration-color);
+      }
+    }
+  }
+
+  [data-hover-parent~='background-color'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--hover-background-color);
+      }
+    }
+  }
+
+  [data-hover-parent~='translate'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        translate: var(--hover-translate);
+      }
+    }
+  }
+
+  [data-hover-parent~='scale'] {
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        > * {
+          scale: var(--hover-scale, 1.05);
+        }
+      }
+    }
+  }
+}

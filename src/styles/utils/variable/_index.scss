@@ -1,0 +1,15 @@
+/* ------------------------------
+ウィンドウサイズ
+------------------------------ */
+$sp-width: 375;
+$tab-width: 767;
+$pc-width: 1280;
+
+/* ------------------------------
+ブレイクポイント
+------------------------------ */
+$breakpoints: (
+  'sp': 'screen and (max-width: #{$tab-width}px)',
+  'tab': 'screen and (min-width: #{$tab-width}px)',
+  'pc': 'screen and (min-width: #{$pc-width}px)',
+);

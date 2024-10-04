@@ -1,0 +1,19 @@
+{
+  "editor.formatOnSave": true,
+  "markuplint.enable": true,
+  "markuplint.hover.accessibility.enable": true,
+  "[scss]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.stylelint": "explicit"
+    }
+  },
+  "[astro]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll.stylelint": "explicit"
+    }
+  },
+  "stylelint.validate": ["scss", "astro"],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
+}

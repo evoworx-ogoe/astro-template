@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import sitemap from '@astrojs/sitemap';
+// import sitemap from '@astrojs/sitemap';
 import sassPlugin from 'vite-plugin-sass-glob-import';
 
 // https://astro.build/config
@@ -37,7 +37,12 @@ export default defineConfig({
       rollupOptions: {
         output: {
           entryFileNames: 'assets/js/main.js',
+          // assetFileNames: 'assets/[ext]/[name].[ext]',
           assetFileNames: (assetInfo) => {
+            // const { names } = assetInfo;
+            // const name = names[0];
+            // console.log(name);
+            // return 'assets/common/[name].[ext]';
             const { name } = assetInfo;
             if (name?.match(/\.css$/)) {
               return 'assets/css/[name].[ext]';

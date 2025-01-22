@@ -19,7 +19,7 @@
   }
 
   [data-hover-parent] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         [data-hover-child~='color'] {
           color: var(--hover-color);
@@ -51,7 +51,7 @@
   }
 
   [data-hover-parent~='dynamic-color'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         --hover-color: var(--dynamic-color);
         --hover-background-color: var(--dynamic-color);
@@ -62,7 +62,7 @@
   }
 
   [data-hover-parent~='color'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         color: var(--hover-color);
       }
@@ -70,7 +70,7 @@
   }
 
   [data-hover-parent~='border-color'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         border-color: var(--hover-border-color);
       }
@@ -78,7 +78,7 @@
   }
 
   [data-hover-parent~='text-decoration-color'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         text-decoration-color: var(--hover-text-decoration-color);
       }
@@ -86,7 +86,7 @@
   }
 
   [data-hover-parent~='background-color'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         background-color: var(--hover-background-color);
       }
@@ -94,7 +94,7 @@
   }
 
   [data-hover-parent~='translate'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         translate: var(--hover-translate);
       }
@@ -102,7 +102,7 @@
   }
 
   [data-hover-parent~='scale'] {
-    @media (hover: hover) and (pointer: fine) {
+    @media (any-hover: hover) {
       &:hover {
         > * {
           scale: var(--hover-scale, 1.05);

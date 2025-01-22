@@ -32,7 +32,7 @@
   }
 
   :target {
-    scroll-margin-top: calc(var(--header-height) + 10px);
+    scroll-margin-top: calc(var(--header-height, 0) + 10px);
   }
 
   :where(.c-outer) {
@@ -45,15 +45,13 @@
     margin-inline: var(--margin-inline-container);
   }
 
-  .c-md_content {
-    display: none;
-
-    @include mixin.mq('tab') {
-      display: initial;
+  .c-md-content {
+    @include mixin.mq('sp') {
+      display: none;
     }
   }
 
-  .c-sm_content {
+  .c-sm-content {
     @include mixin.mq('tab') {
       display: none;
     }

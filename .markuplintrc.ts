@@ -49,21 +49,11 @@ const config: Config = {
       },
     },
   },
-  // pretenders: [
-  //   {
-  //     selector: 'Head',
-  //     as: {
-  //       element: 'head',
-  //       inheritAttrs: true,
-  //       attrs: [
-  //         {
-  //           name: 'title',
-  //           value: '',
-  //         },
-  //       ],
-  //     },
-  //   },
-  // ],
+  nodeRules: [
+    {
+      selector: 'Layout.astro',
+    },
+  ],
   excludeFiles: ['./public/catalog/*', '**/dist/**/*'],
 };
 

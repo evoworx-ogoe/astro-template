@@ -28,6 +28,12 @@ const config = {
     'font-weight-notation': 'numeric',
     'number-max-precision': 2,
     'order/properties-alphabetical-order': null,
+    'selector-pseudo-class-no-unknown': [
+      true,
+      {
+        ignorePseudoClasses: ['global'],
+      },
+    ],
   },
 };
 

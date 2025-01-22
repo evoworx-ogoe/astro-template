@@ -23,6 +23,14 @@ const getScrollToAnchor = (event: Event, target: HTMLAnchorElement) => {
   event.preventDefault();
   const targetId = target.hash;
   if (targetId) {
+    if (window.history.pushState) {
+      // ブラウザの履歴に追加
+      window.history.pushState(null, '', targetId);
+    } else {
+      // ハッシュが使えないブラウザの場合はURLにハッシュを追加
+      window.location.hash = targetId;
+    }
+
     const targetElement = document.querySelector<HTMLElement>(targetId);
     if (!targetElement) return;
     smoothScrollTo(targetElement);

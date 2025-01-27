@@ -1,43 +1,28 @@
 ---
 interface Props {
   name: string;
-  label: string;
   class?: string;
 }
 
-const { name, class: className, label } = Astro.props;
+const { name, class: className, ...rest } = Astro.props;
 ---
-
-<button
-  type="button"
-  class:list={[className, 'modal-toggle', 'c-modal-toggle']}
-  data-modal={name}
-  data-modal-module="button"
-  data-modal-button="toggle"
-  data-hover-parent
-  aria-controls={`modal_${name}`}
-  aria-label="開く"
-  aria-expanded="false"
->
-  <slot name="toggle" />
-</button>
 
 <div
   id={`modal_${name}`}
-  class="modal-container c-modal-container"
+  class:list={[className, 'c-modal-container']}
   data-modal={name}
   data-modal-module="container"
   role="dialog"
   aria-modal="false"
-  aria-label={label}
   aria-hidden="true"
+  {...rest}
 >
-  <div class="c-modal-overlay" data-modal={name} data-modal-module="overlay"></div>
+  <div class="c-modal-overlay" data-modal-module="overlay"></div>
   <slot name="content" />
 </div>
 
 <script>
-  class Modal {
+  export class Modal {
     container: HTMLElement;
     name: string;
     buttons: NodeListOf<HTMLButtonElement>;
@@ -63,7 +48,6 @@ const { name, class: className, label } = Astro.props;
 
     init() {
       this.#setEventListener();
-      this.#resizeObserver();
     }
 
     static instances = [] as Modal[];
@@ -86,22 +70,10 @@ const { name, class: className, label } = Astro.props;
       this.isDestroy = value;
     }
 
-    // コンテンツがリサイズしたらコンテナの高さを再計算する
-    #resizeObserver() {
-      const resizeObserver = new ResizeObserver(() => {
-        this.#setContainerHeight();
-      });
-      resizeObserver.observe(this.content);
-    }
-
-    // コンテナの高さを設定する
-    #setContainerHeight() {
-      this.container.style.setProperty(`--content-height`, `${this.content.offsetHeight}px`);
-    }
-
     // ボタンをクリックしたらモーダルを操作する
     #onClickButton(event: Event) {
       if (this.destroy) return;
+      event.preventDefault();
       const button = event.target as HTMLButtonElement;
       const buttonType = button.dataset.modalButton as string;
 
@@ -118,23 +90,16 @@ const { name, class: className, label } = Astro.props;
       }
     }
 
-    // モーダル内のアンカーをクリックしたらモーダルを閉じる
-    #onClickAnchor() {
-      if (this.destroy) return;
-      this.open = false;
-    }
-
-    // オーバーレイをクリックしたらモーダルを閉じる
-    #onClickOverlay() {
+    // モーダルを閉じる
+    #closeModal() {
       if (this.destroy) return;
       this.open = false;
     }
 
     // モーダルを開いている時にエスケープキーを押したらモーダルを閉じる
     #onKeydown(event: KeyboardEvent) {
-      if (this.destroy) return;
       if (this.isOpen && (event.key === 'Escape' || event.key === 'Esc')) {
-        this.open = false;
+        this.#closeModal();
       }
     }
 
@@ -156,9 +121,9 @@ const { name, class: className, label } = Astro.props;
         button.addEventListener('click', this.#onClickButton.bind(this));
       });
       this.innerAnchors?.forEach((anchor) => {
-        anchor.addEventListener('click', this.#onClickAnchor.bind(this));
+        anchor.addEventListener('click', this.#closeModal.bind(this));
       });
-      this.overlay.addEventListener('click', this.#onClickOverlay.bind(this));
+      this.overlay.addEventListener('click', this.#closeModal.bind(this));
       document.addEventListener('keydown', this.#onKeydown.bind(this));
     }
 
@@ -185,10 +150,10 @@ const { name, class: className, label } = Astro.props;
       // モーダルが開いていたら下層のスクロールを禁止する
       // モーダルの開閉時にイベントを発火する
       if (isOpen) {
-        document.body.classList.add('js-fixed');
+        document.body.classList.add('js_modal_opend');
         this.container.dispatchEvent(new Event('modal:open'));
       } else {
-        document.body.classList.remove('js-fixed');
+        document.body.classList.remove('js_modal_opend');
         this.#stopYoutubeVideo();
         this.container.dispatchEvent(new Event('modal:close'));
       }
@@ -204,7 +169,7 @@ const { name, class: className, label } = Astro.props;
     doDestroy() {
       this.destroy = true;
       this.#toggleDestroyClass('add');
-      document.body.classList.remove('js-fixed');
+      document.body.classList.remove('js_modal_opend');
     }
 
     // モーダルの開閉状態を外部から操作する
@@ -213,25 +178,14 @@ const { name, class: className, label } = Astro.props;
       value === 'open' ? (this.open = true) : (this.open = false);
     }
   }
-
-  // [data-modal-module="container"]
-  const modalContainers = document.querySelectorAll('[data-modal-module="container"]') as NodeListOf<HTMLElement>;
-  modalContainers?.forEach((container) => {
-    new Modal(container);
-  });
 </script>
 
 <style lang="scss">
-  body.js-fixed {
-    padding-right: var(--scrollbar-width);
+  body.js_modal_opend {
     overflow: hidden;
   }
 
-  .c-modal-toggle {
-    display: inline-block;
-  }
-
-  .c-modal-container {
+  .modal_container {
     position: fixed;
     top: 0;
     left: 0;
@@ -246,26 +200,26 @@ const { name, class: className, label } = Astro.props;
 
     // 表示
     &[aria-hidden='true'] {
-      pointer-events: none;
       visibility: hidden;
+      pointer-events: none;
       opacity: 0;
     }
 
     // 非表示
     &[aria-hidden='false'] {
-      pointer-events: auto;
       visibility: visible;
+      pointer-events: auto;
       opacity: 1;
     }
 
-    :where(.c-modal-overlay),
+    :where(.modal_overlay),
     :where(& > :last-child) {
       position: absolute;
       width: 100%;
-      min-height: calc(max(var(--window-height), var(--content-height)));
+      min-height: var(--window-height);
     }
 
-    .c-modal-overlay {
+    .modal_overlay {
       cursor: pointer;
     }
   }

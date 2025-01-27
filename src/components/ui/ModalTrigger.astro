@@ -1,0 +1,45 @@
+---
+interface Props {
+  name: string;
+  tagName?: 'button' | 'a';
+  class?: string;
+}
+
+const { name, tagName = 'button', class: className, ...rest } = Astro.props;
+
+/*
+  [aria-label], [aria-expanded]
+*/
+---
+
+{
+  tagName === 'button' ? (
+    <button
+      type="button"
+      class:list={[className, 'c-modal-toggle']}
+      data-modal={name}
+      data-modal-module="button"
+      aria-controls={`modal_${name}`}
+      {...rest}
+    >
+      <slot name="toggle" />
+    </button>
+  ) : (
+    <a
+      href="#"
+      class:list={[className, 'c-modal-toggle']}
+      data-modal={name}
+      data-modal-module="button"
+      aria-controls={`modal_${name}`}
+      {...rest}
+    >
+      <slot name="toggle" />
+    </a>
+  )
+}
+
+<style lang="scss">
+  .c-modal-toggle {
+    display: inline-block;
+  }
+</style>

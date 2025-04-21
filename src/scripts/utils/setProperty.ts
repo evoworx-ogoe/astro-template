@@ -3,16 +3,14 @@
 ------------------------------ */
 
 const header = document.getElementById('header');
-const documentElement = document.documentElement;
-const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
 
 export const setProperty = (): void => {
-  const viewportWidthPercentage = documentElement.clientWidth;
-  const viewportHeightPercentage = documentElement.clientHeight;
+  const documentElement = document.documentElement;
   const headerHeight = header?.offsetHeight || 0;
+  const scrollbarWidth = window.innerWidth - documentElement.clientWidth;
 
-  documentElement.style.setProperty('--window-width', `${viewportWidthPercentage}px`);
-  documentElement.style.setProperty('--window-height', `${viewportHeightPercentage}px`);
+  documentElement.style.setProperty('--window-width', `${documentElement.clientWidth}px`);
+  documentElement.style.setProperty('--window-height', `${documentElement.clientHeight}px`);
   documentElement.style.setProperty('--header-height', `${headerHeight}px`);
   documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
 };

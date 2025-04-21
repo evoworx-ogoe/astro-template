@@ -5,187 +5,29 @@ interface Props {
 }
 
 const { name, class: className, ...rest } = Astro.props;
+
+/*
+  <ModalContents name="MODAL_NAME">
+    <Frameset slot="content">
+      ----- 内部 -----
+    </Frameset>
+  </ModalContents>
+*/
 ---
 
-<div
-  id={`modal_${name}`}
-  class:list={[className, 'c-modal-container']}
-  data-modal={name}
-  data-modal-module="container"
-  role="dialog"
-  aria-modal="false"
-  aria-hidden="true"
-  {...rest}
->
-  <div class="c-modal-overlay" data-modal-module="overlay"></div>
-  <slot name="content" />
+<div id={`modal_${name}`} class:list={[className, 'c-modal-container']} data-modal={name} data-modal-module="container" role="dialog" aria-modal="false" inert {...rest}>
+  <div class="overlay" data-modal-module="overlay"></div>
+  <div class="contents">
+    <slot />
+  </div>
 </div>
 
-<script>
-  export class Modal {
-    container: HTMLElement;
-    name: string;
-    buttons: NodeListOf<HTMLButtonElement>;
-    innerAnchors: NodeListOf<HTMLAnchorElement>;
-    overlay: HTMLElement;
-    content: HTMLElement;
-    isOpen: boolean;
-    isDestroy: boolean;
-
-    constructor(container: HTMLElement) {
-      Modal.instances.push(this); // インスタンスを配列に格納
-      this.container = container;
-      this.name = container.dataset.modal as string;
-      this.buttons = document.querySelectorAll(`[data-modal="${this.name}"][data-modal-module="button"]`) as NodeListOf<HTMLButtonElement>;
-      this.innerAnchors = this.container.querySelectorAll('a[href*="#"]') as NodeListOf<HTMLAnchorElement>;
-      this.overlay = this.container.querySelector('[data-modal-module="overlay"]') as HTMLElement;
-      this.content = this.container.querySelector(':last-child') as HTMLElement;
-      this.isOpen = false;
-      this.isDestroy = false;
-
-      this.init();
-    }
-
-    init() {
-      this.#setEventListener();
-    }
-
-    static instances = [] as Modal[];
-
-    get open() {
-      return this.isOpen;
-    }
-
-    get destroy() {
-      return this.isDestroy;
-    }
-
-    set open(value) {
-      this.isOpen = value;
-      if (this.destroy) return;
-      this.#toggleModal();
-    }
-
-    set destroy(value) {
-      this.isDestroy = value;
-    }
-
-    // ボタンをクリックしたらモーダルを操作する
-    #onClickButton(event: Event) {
-      if (this.destroy) return;
-      event.preventDefault();
-      const button = event.target as HTMLButtonElement;
-      const buttonType = button.dataset.modalButton as string;
-
-      switch (buttonType) {
-        case 'open':
-          this.open = true;
-          break;
-        case 'close':
-          this.open = false;
-          break;
-        case 'toggle':
-          this.open = !this.open;
-          break;
-      }
-    }
-
-    // モーダルを閉じる
-    #closeModal() {
-      if (this.destroy) return;
-      this.open = false;
-    }
-
-    // モーダルを開いている時にエスケープキーを押したらモーダルを閉じる
-    #onKeydown(event: KeyboardEvent) {
-      if (this.isOpen && (event.key === 'Escape' || event.key === 'Esc')) {
-        this.#closeModal();
-      }
-    }
-
-    // コンテナ内にYouTubeの埋め込みiframeがあれば閉じる時に動画を停止する
-    #stopYoutubeVideo() {
-      const iframeElements = this.container.querySelectorAll('iframe');
-      iframeElements?.forEach((iframe) => {
-        const src = iframe.getAttribute('src');
-        if (src?.match(/youtube.com/)) {
-          const youtube = iframe.contentWindow;
-          youtube?.postMessage('{"event": "command", "func": "stopVideo", "args": ""}', '*');
-        }
-      });
-    }
-
-    // イベントリスナーを設定する
-    #setEventListener() {
-      this.buttons?.forEach((button) => {
-        button.addEventListener('click', this.#onClickButton.bind(this));
-      });
-      this.innerAnchors?.forEach((anchor) => {
-        anchor.addEventListener('click', this.#closeModal.bind(this));
-      });
-      this.overlay.addEventListener('click', this.#closeModal.bind(this));
-      document.addEventListener('keydown', this.#onKeydown.bind(this));
-    }
-
-    #toggleDestroyClass(action: 'add' | 'remove') {
-      this.container.classList[action]('is_destroy');
-      this.buttons?.forEach((button) => {
-        button.classList[action]('is_destroy');
-      });
-    }
-
-    // モーダルの開閉
-    #toggleModal(isOpen = this.isOpen) {
-      this.container.setAttribute('aria-modal', `${isOpen}`);
-      this.container.setAttribute('aria-hidden', `${!isOpen}`);
-      this.buttons?.forEach((button) => {
-        const buttonType = button.dataset.modalButton as string;
-        const label = isOpen ? 'メニューを閉じる' : 'メニューを開く';
-        if (buttonType !== 'toggle') return;
-
-        button.setAttribute('aria-expanded', `${isOpen}`);
-        button.setAttribute('aria-label', label);
-      });
-
-      // モーダルが開いていたら下層のスクロールを禁止する
-      // モーダルの開閉時にイベントを発火する
-      if (isOpen) {
-        document.body.classList.add('js_modal_opend');
-        this.container.dispatchEvent(new Event('modal:open'));
-      } else {
-        document.body.classList.remove('js_modal_opend');
-        this.#stopYoutubeVideo();
-        this.container.dispatchEvent(new Event('modal:close'));
-      }
-    }
-
-    // モダールを外部から再初期化する
-    doInit() {
-      this.destroy = false;
-      this.#toggleDestroyClass('remove');
-    }
-
-    // モーダルを外部から破棄する
-    doDestroy() {
-      this.destroy = true;
-      this.#toggleDestroyClass('add');
-      document.body.classList.remove('js_modal_opend');
-    }
-
-    // モーダルの開閉状態を外部から操作する
-    doToggle(value: 'open' | 'close') {
-      // 'open'なら開く, 'close'なら閉じる
-      value === 'open' ? (this.open = true) : (this.open = false);
-    }
-  }
-</script>
-
 <style lang="scss">
-  body.js_modal_opend {
+  body.js-modal-open {
     overflow: hidden;
   }
 
-  .modal_container {
+  .c-modal-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -193,34 +35,40 @@ const { name, class: className, ...rest } = Astro.props;
     width: 100%;
     height: 100%;
     overflow-y: scroll;
-    transition-timing-function: cubic-bezier(0.3, 1.01, 0.6, 1);
+    transition-timing-function: ease;
     transition-duration: 0.4s;
     transition-property: opacity, visibility;
     will-change: opacity, visibility;
 
     // 表示
-    &[aria-hidden='true'] {
+    // &[aria-hidden='true'] {
+    &[inert] {
       visibility: hidden;
       pointer-events: none;
       opacity: 0;
     }
 
     // 非表示
-    &[aria-hidden='false'] {
+    // &[aria-hidden='false'] {
+    &:not([inert]) {
       visibility: visible;
       pointer-events: auto;
       opacity: 1;
     }
 
-    :where(.modal_overlay),
-    :where(& > :last-child) {
-      position: absolute;
-      width: 100%;
+    > .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: calc(100% - var(--scrollbar-width));
       min-height: var(--window-height);
+      cursor: pointer;
+      background-color: rgb(0 0 0 / 40%);
     }
 
-    .modal_overlay {
-      cursor: pointer;
+    > .contents {
+      position: relative;
+      z-index: 1;
     }
   }
 </style>

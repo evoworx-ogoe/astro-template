@@ -2,38 +2,27 @@
 interface Props {
   name: string;
   tagName?: 'button' | 'a';
+  type?: 'open' | 'close' | 'toggle';
   class?: string;
 }
 
-const { name, tagName = 'button', class: className, ...rest } = Astro.props;
+const { name, tagName = 'button', type = 'toggle', class: className, ...rest } = Astro.props;
 
 /*
-  [aria-label], [aria-expanded]
+  <ModalTrigger name="MODAL_NAME" tagName="" type="">
+    ----- 内部 -----
+  </ModalTrigger>
 */
 ---
 
 {
   tagName === 'button' ? (
-    <button
-      type="button"
-      class:list={[className, 'c-modal-toggle']}
-      data-modal={name}
-      data-modal-module="button"
-      aria-controls={`modal_${name}`}
-      {...rest}
-    >
-      <slot name="toggle" />
+    <button type="button" class:list={[className, 'c-modal-toggle']} data-modal={name} data-modal-module="button" data-modal-type={type} aria-controls={`modal_${name}`} {...rest}>
+      <slot />
     </button>
   ) : (
-    <a
-      href="#"
-      class:list={[className, 'c-modal-toggle']}
-      data-modal={name}
-      data-modal-module="button"
-      aria-controls={`modal_${name}`}
-      {...rest}
-    >
-      <slot name="toggle" />
+    <a href="#" class:list={[className, 'c-modal-toggle']} data-modal={name} data-modal-module="button" data-modal-type={type} aria-controls={`modal_${name}`} {...rest}>
+      <slot />
     </a>
   )
 }
@@ -41,5 +30,10 @@ const { name, tagName = 'button', class: className, ...rest } = Astro.props;
 <style lang="scss">
   .c-modal-toggle {
     display: inline-block;
+    pointer-events: all;
+
+    * {
+      pointer-events: none;
+    }
   }
 </style>

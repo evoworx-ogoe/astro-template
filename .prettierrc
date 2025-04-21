@@ -9,6 +9,6 @@
     }
   ],
   "singleQuote": true,
-  "printWidth": 140,
-  "htmlWhitespaceSensitivity": "ignore"
+  "printWidth": 180,
+  "htmlWhitespaceSensitivity": "strict"
 }

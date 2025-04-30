@@ -2,6 +2,13 @@
 スクロール方向の監視
 ------------------------------ */
 
+/*
+  scrollControl(
+    onScrollDown: () => console.log('Scroll Down')),
+    onScrollUp: () => console.log('Scroll Up')),
+  );
+*/
+
 export const scrollControl = (onScrollDown: () => void, onScrollUp: () => void, threshold: number = 4) => {
   let previousPosition: number = 0;
   let ticking: boolean = false;

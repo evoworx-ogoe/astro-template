@@ -7,25 +7,31 @@ interface Props {
 const { name, class: className, ...rest } = Astro.props;
 
 /*
-<Accordion name="ACCORDION_NAME" summaryHover="hover">
+<Accordion name="ACCORDION_NAME">
   <Fragment slot="summary">アコーディオンのタイトル</Fragment>
   <Fragment slot="content">アコーディオンの内容</Fragment>
 </Accordion>
 */
 ---
 
-<details class:list={[className, 'accordion', 'c-accordion']} data-accordion="details" data-accordion-name={name} {...rest}>
-  <summary class="accordion__summary" data-accordion="summary" aria-expanded="false" aria-controls={`accordion_${name}`}>
+<details class:list={[className, 'c-accordion']} data-accordion="details" data-accordion-name={name} {...rest}>
+  <summary class="c-accordion__summary" data-accordion="summary" aria-expanded="false" aria-controls={`accordion_${name}`}>
     <slot name="summary" />
   </summary>
-  <div id={`accordion_${name}`} class="accordion__content" data-accordion="content">
+  <div id={`accordion_${name}`} class="c-accordion__content" data-accordion="content">
     <slot name="content" />
   </div>
 </details>
 
 <style lang="scss">
   .c-accordion {
-    .accordion__content {
+    .c-accordion__summary {
+      &::-webkit-details-marker {
+        display: none;
+      }
+    }
+
+    .c-accordion__content {
       overflow: hidden;
     }
   }

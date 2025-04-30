@@ -22,11 +22,8 @@ export class Modal {
     this.isOpen = false;
     this.isDestroy = false;
 
+    console.log(this.container);
     this.init();
-  }
-
-  init() {
-    this.#setEventListener();
   }
 
   static instances = [] as Modal[];
@@ -49,6 +46,10 @@ export class Modal {
     this.isDestroy = value;
   }
 
+  init() {
+    this.#setEventListener();
+  }
+
   // ボタンをクリックしたらモーダルを操作する
   #onClickButton(event: Event) {
     if (this.destroy) return;
@@ -58,14 +59,13 @@ export class Modal {
 
     switch (buttonType) {
       case 'open':
-        this.open = true;
-        break;
+        return (this.open = true);
       case 'close':
-        this.open = false;
-        break;
+        return (this.open = false);
       case 'toggle':
-        this.open = !this.open;
-        break;
+        return (this.open = !this.open);
+      default:
+        return (this.open = !this.open);
     }
   }
 

@@ -1,16 +1,16 @@
 import '@/styles/index.scss';
 import { viewportRewriting } from '@/scripts/utils/viewport';
-import { setAriaCurrent } from '@/scripts/utils/setAriaCurrent';
 import { setProperty } from '@/scripts/utils/setProperty';
 import { initSmoothScroll } from '@/scripts/utils/smoothScroll';
 import { initAccordion } from '@/scripts/ui/accordion';
+import { initTab } from '@/scripts/ui/tab';
 
 window.addEventListener('DOMContentLoaded', (): void => {
   viewportRewriting();
-  setAriaCurrent();
   setProperty();
   initSmoothScroll();
   initAccordion();
+  initTab();
 });
 
 const render = (): void => {

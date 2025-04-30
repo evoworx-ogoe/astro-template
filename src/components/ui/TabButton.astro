@@ -1,0 +1,13 @@
+---
+interface Props {
+  tabId: string;
+}
+
+const { tabId, ...rest } = Astro.props;
+---
+
+<li role="presentation" {...rest}>
+  <a href={`#tabpanel-${tabId}`} id={`tab-${tabId}`} class="tab" role="tab" aria-controls={`tabpanel-${tabId}`}>
+    <slot />
+  </a>
+</li>

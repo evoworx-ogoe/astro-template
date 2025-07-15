@@ -14,6 +14,7 @@
   },
   "stylelint.validate": ["scss", "astro"],
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
   }
 }

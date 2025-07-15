@@ -4,6 +4,12 @@ interface Props {
 }
 
 const { tabId, ...rest } = Astro.props;
+
+/*
+  <TabButton tabId="TAB_ID">
+    ----- 内部 -----
+  </TabButton>
+*/
 ---
 
 <li role="presentation" {...rest}>

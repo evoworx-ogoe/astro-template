@@ -4,6 +4,17 @@ interface Props {
 }
 
 const { class: className, ...rest } = Astro.props;
+
+/*
+  <TabContainer>
+    <TabButton slot="button" tabId="TAB_ID">
+      ----- 内部 -----
+    </TabButton>
+    <TabPanel slot="tabpanel" tabId="TAB_ID">
+      ----- 内部 -----
+    </TabPanel>
+  </TabContainer>
+*/
 ---
 
 <div class:list={[className, 'c-tab-container']} data-tab-container {...rest}>

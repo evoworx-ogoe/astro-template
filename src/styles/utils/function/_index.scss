@@ -40,6 +40,23 @@
   @return string.unquote('min(#{$vwValue}, #{$pxValue}px)');
 }
 
+// max() vw
+@function vwmax($pxValue, $reference, $base: null) {
+  @if $reference == 'sp' {
+    @if not $base {
+      $base: var.$sp-width;
+    }
+  } @else if $reference == 'pc' {
+    @if not $base {
+      $base: var.$pc-width;
+    }
+  }
+
+  $vwValue: calc(math.round(calc($pxValue / $base) * 10000) / 100 * 1vw);
+
+  @return string.unquote('max(#{$vwValue}, #{$pxValue}px)');
+}
+
 // px => vw
 @function vw($px, $reference, $base: null) {
   @if $reference == 'sp' {
@@ -54,6 +71,23 @@
     }
 
     @return calc(math.round(calc($px / $base) * 10000) / 100 * 1vw);
+  }
+}
+
+// px => svh
+@function svh($px, $reference, $base: null) {
+  @if $reference == 'sp' {
+    @if not $base {
+      $base: var.$sp-height;
+    }
+
+    @return calc(math.round(calc($px / $base) * 10000) / 100 * 1svh);
+  } @else if $reference == 'pc' {
+    @if not $base {
+      $base: var.$pc-height;
+    }
+
+    @return calc(math.round(calc($px / $base) * 10000) / 100 * 1svh);
   }
 }
 

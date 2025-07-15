@@ -4,15 +4,13 @@ import sassPlugin from 'vite-plugin-sass-glob-import';
 
 // https://astro.build/config
 export default defineConfig({
-  devToolbar: {
-    enabled: false,
-  },
   // integrations: [sitemap()],
-  srcDir: './src',
-  outDir: './dist',
   site: 'https://evoworx.co.jp/',
-  server: { port: 2006, host: true, open: true },
   scopedStyleStrategy: 'where',
+  server: { port: 2006, host: true, open: true },
+  build: {
+    inlineStylesheets: 'never',
+  },
   vite: {
     plugins: [sassPlugin()],
     resolve: {
@@ -32,25 +30,24 @@ export default defineConfig({
       },
     },
     build: {
-      assetsInlineLimit: 0,
-      // cssCodeSplit: false,
+      cssCodeSplit: false,
       rollupOptions: {
         output: {
-          entryFileNames: 'assets/js/main.js',
-          // assetFileNames: 'assets/[ext]/[name].[ext]',
+          entryFileNames: (chunkInfo) => {
+            const { facadeModuleId } = chunkInfo;
+            const match = facadeModuleId?.toLowerCase().match(/\/([^\/]+)\.astro/);
+            const fileName = match && match[1] ? `${match[1]}` : 'violation';
+            return `assets/js/${fileName}.js`;
+          },
           assetFileNames: (assetInfo) => {
-            // const { names } = assetInfo;
-            // const name = names[0];
-            // console.log(name);
-            // return 'assets/common/[name].[ext]';
-            const { name } = assetInfo;
-            if (name?.match(/\.css$/)) {
+            const { names } = assetInfo;
+            if (names[0].match(/\.css$/)) {
               return 'assets/css/[name].[ext]';
-            } else if (name?.match(/\.(jpg|jpeg|png|gif|svg|ico|webp|avif)$/)) {
+            } else if (names[0].match(/\.(jpg|jpeg|png|gif|svg|ico|webp|avif)$/)) {
               return 'assets/img/[name].[ext]';
-            } else if (name?.match(/\.(mp4|webm|mov|)$/)) {
+            } else if (names[0].match(/\.(mp4|webm|mov|)$/)) {
               return 'assets/video/[name].[ext]';
-            } else if (name?.match(/\.(woff|woff2|eot|ttf|otf)$/)) {
+            } else if (names[0].match(/\.(woff|woff2|eot|ttf|otf)$/)) {
               return 'assets/font/[name].[ext]';
             } else {
               return 'assets/common/[name].[ext]';

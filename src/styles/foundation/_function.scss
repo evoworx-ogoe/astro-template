@@ -1,7 +1,7 @@
 @use 'sass:math';
 @use 'sass:string';
 @use 'sass:meta';
-@use '/src/styles/utils/variable' as var;
+@use './variable' as var;
 
 /* ------------------------------
 数値変換
